@@ -1,0 +1,14 @@
+import pygame, time
+
+win_size = (600, 300)
+text_col = (225, 225, 225)
+position = (100, 199)
+
+pygame.init()
+window = pygame.display.set_mode(win_size)
+my_font = pygame.font.SysFont("Arial", 60)
+label = my_font.render("Hey", 1, text_col)
+window.blit(label, position)
+pygame.display.update()
+time.sleep(5)
+pygame.quit()
