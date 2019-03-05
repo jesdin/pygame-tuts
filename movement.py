@@ -9,15 +9,25 @@ win.fill(win_back)
 pygame.display.set_caption("First Game")
 
 # loading sprites
-walkRight = [pygame.image.load('Sprites/R1.png'), pygame.image.load('Sprites/R2.png'), pygame.image.load('Sprites/R3.png'), pygame.image.load('Sprites/R4.png'), pygame.image.load('Sprites/R5.png'), pygame.image.load('Sprites/R6.png'), pygame.image.load('Sprites/R7.png'), pygame.image.load('Sprites/R8.png'), pygame.image.load('Sprites/R9.png')]
-walkLeft = [pygame.image.load('Sprites/L1.png'), pygame.image.load('Sprites/L2.png'), pygame.image.load('Sprites/L3.png'), pygame.image.load('Sprites/L4.png'), pygame.image.load('Sprites/L5.png'), pygame.image.load('Sprites/L6.png'), pygame.image.load('Sprites/L7.png'), pygame.image.load('Sprites/L8.png'), pygame.image.load('Sprites/L9.png')]
+
 bg = pygame.image.load('Sprites/bg.jpg')
-char = pygame.image.load('Sprites/standing.png')
 
 clock = pygame.time.Clock()
 
 
 class Player(object):
+    walkRight = [pygame.image.load('Sprites/R1.png'), pygame.image.load('Sprites/R2.png'),
+                 pygame.image.load('Sprites/R3.png'), pygame.image.load('Sprites/R4.png'),
+                 pygame.image.load('Sprites/R5.png'), pygame.image.load('Sprites/R6.png'),
+                 pygame.image.load('Sprites/R7.png'), pygame.image.load('Sprites/R8.png'),
+                 pygame.image.load('Sprites/R9.png')]
+    walkLeft = [pygame.image.load('Sprites/L1.png'), pygame.image.load('Sprites/L2.png'),
+                pygame.image.load('Sprites/L3.png'), pygame.image.load('Sprites/L4.png'),
+                pygame.image.load('Sprites/L5.png'), pygame.image.load('Sprites/L6.png'),
+                pygame.image.load('Sprites/L7.png'), pygame.image.load('Sprites/L8.png'),
+                pygame.image.load('Sprites/L9.png')]
+    char = pygame.image.load('Sprites/standing.png')
+
     def __init__(self, x, y, width, height):
         self.x = x
         self.y = y
@@ -36,18 +46,18 @@ class Player(object):
             man.walkCount = 0
         if not self.standing:
             if self.left:
-                screen.blit(walkLeft[self.walkCount // 3], (self.x, self.y))  # int div
+                screen.blit(Player.walkLeft[self.walkCount // 3], (self.x, self.y))  # int div
                 if not self.isJump:
                     self.walkCount += 1
             elif self.right:
-                screen.blit(walkRight[self.walkCount // 3], (self.x, self.y))
+                screen.blit(Player.walkRight[self.walkCount // 3], (self.x, self.y))
                 if not self.isJump:
                     self.walkCount += 1
         else:
             if self.right:
-                screen.blit(walkRight[0], (self.x, self.y))
+                screen.blit(Player.walkRight[0], (self.x, self.y))
             elif self.left:
-                screen.blit(walkLeft[0], (self.x, self.y))
+                screen.blit(Player.walkLeft[0], (self.x, self.y))
 
 
 class Projectile(object):
@@ -63,9 +73,60 @@ class Projectile(object):
         pygame.draw.circle(screen, self.color, (self.x, self.y), self.radius)
 
 
+class Enemy(object):
+    walkRight = [pygame.image.load('Sprites/R1E.png'), pygame.image.load('Sprites/R2E.png'),
+                 pygame.image.load('Sprites/R3E.png'), pygame.image.load('Sprites/R4E.png'),
+                 pygame.image.load('Sprites/R5E.png'), pygame.image.load('Sprites/R6E.png'),
+                 pygame.image.load('Sprites/R7E.png'), pygame.image.load('Sprites/R8E.png'),
+                 pygame.image.load('Sprites/R9E.png'),
+                 pygame.image.load('Sprites/R10E.png'), pygame.image.load('Sprites/R11E.png')]
+    walkLeft = [pygame.image.load('Sprites/L1E.png'), pygame.image.load('Sprites/L2E.png'),
+                pygame.image.load('Sprites/L3E.png'), pygame.image.load('Sprites/L4E.png'),
+                pygame.image.load('Sprites/L5E.png'), pygame.image.load('Sprites/L6E.png'),
+                pygame.image.load('Sprites/L7E.png'), pygame.image.load('Sprites/L8E.png'),
+                pygame.image.load('Sprites/L9E.png'), pygame.image.load('Sprites/L10E.png'),
+                pygame.image.load('Sprites/L11E.png')]
+
+    def __init__(self, x, y, width, height, end):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.end = end
+        self.path = [self.x, self.end]
+        self.walkCount = 0
+        self.vel = 3
+
+    def draw(self, screen):
+        self.move()
+        if self.walkCount + 1 >= 33:
+            self.walkCount = 0
+        if self.vel > 0:
+            screen.blit(self.walkRight[self.walkCount // 3], (self.x, self.y))
+            self.walkCount += 1
+        else:
+            screen.blit(self.walkLeft[self.walkCount // 3], (self.x, self.y))
+            self.walkCount += 1
+        pass
+
+    def move(self):
+        if self.vel > 0:
+            if self.x + self.vel < self.path[1]:
+                self.x += self.vel
+            else:
+                self.vel = -self.vel
+        else:
+            if self.x - self.vel > self.path[0]:
+                self.x += self.vel
+            else:
+                self.vel = -self.vel
+        pass
+
+
 def redrawGameWindow():
     win.blit(bg, (0, 0))
     man.draw(win)
+    goblin.draw(win)
     for bullet in bullets:
         bullet.draw(win)
     pygame.display.update()
@@ -74,6 +135,7 @@ def redrawGameWindow():
 # main loop
 run = True
 man = Player(300, 410, 64, 64)
+goblin = Enemy(100, 410, 64, 64, 450)
 bullets = []
 while run:
     clock.tick(27)
